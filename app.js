@@ -83,3 +83,19 @@ document.querySelector('#btn-new').addEventListener("click", function(e) {
     context.clearRect(0, 0, canvas.width, canvas.height);
 })
 
+//OPCIONAL
+document.querySelector("#btn-small").addEventListener("click", function(e){
+    var canvas = document.querySelector('#canvas');
+    canvas.style.width = "30%";
+})
+
+document.querySelector("#btn-medium").addEventListener("click", function(e){
+    var canvas = document.querySelector('#canvas');
+    canvas.style.width = "60%";
+})
+document.querySelector("#btn-standard").addEventListener("click", function(){
+    var canvas = document.querySelector('#canvas');
+    canvas.style.width = "100%";
+    canvas.style.margin = "0 0"
+})
+

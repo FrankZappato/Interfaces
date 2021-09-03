@@ -4,16 +4,44 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css">
     <title>Document</title>
 </head>
-<body>
-    <canvas id="canvas" width="500" height="300" style="border: 1px solid black;">
-        <img id="target" width="500" height="300">
-    </canvas>
-    <p id="error"></p>
-    <button id="btn-new">Nuevo</button>
-    <button id="btn-save">Guardar</button>
-    <input type="file" id="select_image" name="image" onchange="putImage()"></input>
+<div>
+    <header>
+        <div class="title shadow">
+            <h1 >Ejercicio Entregable – Práctico Nº1</h1>
+        </div>
+        <nav class="d-flex align-items-center nav">
+            <button class="btn" id="btn-new">Nuevo</button>
+            <label for="select_image" class="btn">Imagen</label>
+            <input 
+                class="btn" 
+                type="file" 
+                id="select_image" 
+                name="image" 
+                onchange="putImage()"
+                style="display: none;"/>
+            <button class="btn" id="btn-small">Small</button>
+            <button class="btn" id="btn-medium">Medium</button>
+            <button class="btn" id="btn-standard">Standard</button>
+            <button class="btn" id="btn-save">Guardar</button>
+            <p id="error"></p>
+        </nav>
+    </header>
+    <body>
+        <main 
+            class="main"
+            style="background-color: rgb(243, 243, 243);"
+            >
+            <canvas  
+                id="canvas" 
+                class="canvas">
+                <img id="target" >
+            </canvas>
+        </main>
+    </body>
     <script src="app.js"></script>
-</body>
+</div>
 </html>
