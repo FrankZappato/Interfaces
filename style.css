@@ -1,0 +1,59 @@
+body {
+    margin :0;
+    padding: 0;
+}
+#canvas-drw {
+    width: 900px;
+    height: 500px;
+    margin-left: 150px;
+    border :2px solid black ;
+    box-shadow:  -3px 2px 9px 6px black;
+    cursor: crosshair;
+}
+
+.tools{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin-bottom: 15px;
+    margin-top: 15px;
+}
+.tools .color-field{
+    height: 30px;
+    width: 30px;
+    min-width: 30px;
+    min-height: 30px;
+    cursor: pointer;
+    display: inline-block;
+    box-sizing: border-box;
+    border: 2px solid black;
+    border-radius: 50%;
+    align-self: center;
+    margin: 0 10px;
+}
+
+.range-box{
+    display: flex;
+    flex-direction: column;
+}
+#size{
+    align-self: center;
+}
+
+.tools .button{
+    align-self: center;
+    width: 80px;
+    height: 30px;
+    border: 2px solid black;
+    cursor: pointer;
+    color : black;
+    background: white;
+    font-weight: bold;
+    margin: 0 10px;
+}
+
+.color-picker {
+    align-self: center;
+    margin: 0 10px;
+    height: 40px;
+}
