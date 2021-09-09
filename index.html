@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="./drawing.js"></script>
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+    <title>Pencil</title>
+</head>
+<body>
+    <!--<ul>
+        <li>
+            <label>Color:</label>
+            <input  id="color-selector" type="text">
+        </li>
+        <li>
+            <label>Size</label>
+            <input id="size-selector" type="number">
+        </li>
+    </ul>
+    <button id="confirm-selection">Confirmar</button>-->
+    <div class="tools">
+        <button id="btn-undo" class="button" type="button">Undo</button>
+        <button id="btn-clear" class="button" type="button">Clear</button>
+
+        <div class="color-field" style="background: red;"></div>
+        <div class="color-field" style="background: yellow;"></div>
+        <div class="color-field" style="background: blue;"></div>
+        <div class="color-field" style="background: green;"></div>
+        <div class="color-field" style="background: black;"></div>
+
+        <input type="color" class="color-picker" id="color_picker">
+        <div class="range-box">
+            <input type="range" min="1" max="100" class="pencil-range" id="pencil_range">
+            <label id="size"></label>
+        </div>    
+    </div>          
+    <canvas id="canvas-drw"></canvas>                                
+</body>
+</html>
