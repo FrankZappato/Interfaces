@@ -27,8 +27,49 @@ nav{
 .canvas{
     border: 1px solid rgb(151, 151, 151);
     margin: 30px 0;
-    width: 60%; 
-    height: auto;
+    width: 900px;
+    height: 500px;
     background-color: white;
+    box-shadow:  -3px 2px 9px 6px black;
+    cursor: crosshair;
+}
+
+.tools{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin-bottom: 15px;
+    margin-top: 15px;
+}
+.tools .color-field{
+    height: 30px;
+    width: 30px;
+    min-width: 30px;
+    min-height: 30px;
+    cursor: pointer;
+    display: inline-block;
+    box-sizing: border-box;
+    border: 2px solid black;
+    border-radius: 50%;
+    align-self: center;
+    margin: 0 10px;
+}
+
+.range-box{
+    display: flex;
+    flex-direction: column;    
+}
+.range-box .pencil-range{
+    padding: 5px;
+    cursor:pointer;
+}
+#size{
+    align-self: center;
+}
+.color-picker {
+    align-self: center;
+    margin: 0 10px;
+    height: 40px;
+    cursor:pointer;
 }
 

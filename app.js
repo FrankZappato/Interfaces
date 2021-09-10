@@ -1,6 +1,121 @@
 document.addEventListener("DOMContentLoaded",()=>{
+    //Variables del canvas y su contexto
     let canvas = document.querySelector("#canvas");
     let ctx = canvas.getContext("2d");
+
+    //Preset de funciones y variables para agregar eventos al menú.
+    function addEventListenerToPicker(){
+        let color_picker = document.querySelector("#color_picker");
+        color_picker.addEventListener("change",changeColorWithPicker);       
+     }
+ 
+     let sizeChange = document.querySelector("#pencil_range");
+     function addEventToSizeRange(){
+         sizeChange.addEventListener("change",changeSizeOfPencil);
+     }
+ 
+     function addEventClickToColors(){
+         let colors = document.querySelectorAll(".color-field");        
+         colors.forEach(col => {
+             col.addEventListener("click",changeColor);
+         });
+     }
+
+    //Variables para dibujar
+    let sizeView = document.querySelector('#size');
+    let painting = false; 
+    let pencilColor = 'black';
+    let size = 5;
+    sizeView.innerHTML = size;
+    sizeChange.value = size;
+    let restore_array = [];//array de lineas dibujadas.
+    let idxRestore = -1;//index del array para poder deshacer cambios.
+
+    
+
+     addEventClickToColors();
+     addEventListenerToPicker();
+     addEventToSizeRange();
+     
+ 
+     ///document.querySelector('#btn-clear').addEventListener('click',clearCanvas);
+     document.querySelector('#btn-undo').addEventListener('click',undoChange);
+        
+
+
+    function clearCanvas(){
+        ctx.fillStyle  = 'white';
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+
+        restore_array = [];
+        idxRestore = -1;
+    }
+
+    function undoChange(){
+        if(idxRestore <=0){
+            clearCanvas();
+        }else{
+            idxRestore --;
+            restore_array.pop();
+            ctx.putImageData(restore_array[idxRestore],0,0);
+        }
+    }
+
+    function changeColor(event){
+        pencilColor = event.target.style.background;
+    }
+
+    function changeColorWithPicker(event){
+        console.log(event);
+        pencilColor = event.target.value;
+    }
+    function changeSizeOfPencil(event){
+        size = event.target.value;
+        sizeView.innerHTML = size;
+    }
+
+    function startPosition(event)
+    {       
+        painting = true;
+        ctx.beginPath();
+        ctx.moveTo(event.clientX - canvas.offsetLeft,
+             event.clientY - canvas.offsetTop);
+        event.preventDefault();
+        draw(event);
+    }
+    function finishedPosition(event)
+    {
+        if(painting){
+            ctx.stroke();
+            ctx.closePath();
+            painting = false;           
+        }
+        event.preventDefault();
+
+        if(event.type != 'mouseout'){
+            restore_array.push(ctx.getImageData(0,0,canvas.width,canvas.height));
+            idxRestore ++;
+        }
+    }
+    function draw(event)
+    {
+        if(!painting) return;
+        ctx.lineTo(event.clientX - canvas.offsetLeft,
+             event.clientY - canvas.offsetTop);
+        ctx.strokeStyle = pencilColor;
+        ctx.lineWidth = size;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.stroke();    
+        event.preventDefault();         
+    }
+
+    //EventListeners
+    canvas.addEventListener("mousedown",startPosition);
+    canvas.addEventListener("mousemove",draw);
+    canvas.addEventListener("mouseup",finishedPosition);
+    canvas.addEventListener("mouseout",finishedPosition);
 
 
 /* BOTONES
@@ -13,7 +128,7 @@ La funcion failed se encarga de mostrar un mensaje de error
  */
 
 document.getElementById('select_image').onchange = function(e) {
-    var img = new Image();
+    let img = new Image();
     img.src = URL.createObjectURL(this.files[0]);
     img.onload = function draw(){
        // var canvas = document.getElementById('canvas');
@@ -36,7 +151,7 @@ Llamamos a la funcion de descarga con los parametros de la url y un titulo para 
 */
 
 document.querySelector('#btn-reset').addEventListener("click", function(e) {
-    var xhr = new XMLHttpRequest();
+    let xhr = new XMLHttpRequest();
     xhr.open('GET', 'blob:http://127.0.0.1:5500/627fd747-ea38-4c53-be55-b993f0b488bb', true);
     xhr.responseType = 'blob';
     xhr.onload = function(e) {
@@ -68,8 +183,11 @@ function downloadImage(data, filename = 'untitled.jpeg') {
 }
 
 //Limpiamos el canvas utilizando clearRect.
-document.querySelector('#btn-new').addEventListener("click", function(e) {    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+document.querySelector('#btn-new').addEventListener("click", function(e) {  
+    ctx.fillStyle  = 'white';
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillRect(0,0,canvas.width,canvas.height);  
+    //ctx.clearRect(0, 0, canvas.width, canvas.height);
 })
 
 //OPCIONAL
@@ -152,14 +270,12 @@ function filterPixelNegative(imgData,x,y)
 
 /* FILTROS*/ 
 document.getElementById('filtros').addEventListener('change', function() {
-    if(this.value == "brillo"){
-        var canvas = document.getElementById("canvas");
-        var ctx = canvas.getContext("2d");
+    if(this.value == "brillo"){        
         ctx.drawImage(canvas, 0, 0);
-        var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
         // invert colors
-        var i;
+        let i;
         for (i = 0; i < imgData.data.length; i += 4) {
             imgData.data[i] = 255 + imgData.data[i];
             imgData.data[i+1] = 255 + imgData.data[i+1];
@@ -177,11 +293,9 @@ document.getElementById('filtros').addEventListener('change', function() {
     if(this.value == "binary"){
         filterBinary();
     } 
-    if(this.value == "blur"){
-        var canvas = document.getElementById("canvas");
-        var ctx = canvas.getContext("2d");
+    if(this.value == "blur"){        
         ctx.drawImage(canvas, 0, 0);
-        var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
         //blurr
         var px = imgData.data;
@@ -210,4 +324,28 @@ document.getElementById('filtros').addEventListener('change', function() {
         delete(tmpPx)
     }
   });
+
+  /*function filterBlur()
+  {
+    let img = ctx.getImageData(0,0,canvas.width,canvas.height);
+    for(let x = 0; x < img.width; x++ ){
+        for(let y = 0; y < img.height; y++){
+            filterPixelBinary(img,x,y);
+        }
+    }
+    ctx.putImageData(img,0,0);
+  }
+  function filterPixelBlur(imgData,x,y){
+    let f = (x + y * imgData.width) * 4; 
+    let avg = ( imgData.data[f + 0] + imgData.data[f + 1] + imgData.data[f + 2]) / 3;      
+    if(avg < 127.5) {
+        imgData.data[f + 0] = 0;
+        imgData.data[f + 1] = 0;
+        imgData.data[f + 2] = 0;
+    }else{
+        imgData.data[f + 0] = 255;
+        imgData.data[f + 1] = 255;
+        imgData.data[f + 2] = 255;
+    }
+}*/
 });
