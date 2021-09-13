@@ -3,7 +3,14 @@ document.addEventListener("DOMContentLoaded",()=>{
     let canvas = document.querySelector("#canvas");
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
-    let ctx = canvas.getContext("2d");    
+    let ctx = canvas.getContext("2d");   
+    let imageData;
+    let imageDataCopy;
+    
+    function changeImageData(imData){
+        imageData = imData;
+        console.log(imData)
+    }
 
     //Preset de funciones y variables para agregar eventos al menú.
     function addEventListenerToPicker(){
@@ -139,11 +146,12 @@ document.addEventListener("DOMContentLoaded",()=>{
     }
     
     function getPointerPositionX(event)
-    {        
+    {          
+        console.log(event)
         return (event.clientX + window.scrollX);
     }
     function getPointerPositionY(event)
-    {        
+    {   
         return (event.clientY + window.scrollY);
     }
 
@@ -166,20 +174,22 @@ en caso contrario a la funcion failed.
 La funcion failed se encarga de mostrar un mensaje de error 
  */
 
-document.getElementById('select_image').onchange = function(e) {
+document.getElementById('select_image').addEventListener('change',uploadImage);    
+
+function uploadImage()
+{
     let img = new Image();
     img.src = URL.createObjectURL(this.files[0]);
-    img.onload = function draw(){     
-        canvas.width = img.width;
-        canvas.height = img.height;
+    img.onload = function draw(){       
         ctx.drawImage(this, 0, 0, canvas.width, canvas.height);
         /*let imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
         return imageData*/
+        changeImageData(ctx.getImageData(0,0,canvas.width,canvas.height));        
     };
     img.onerror = function failed(){
         document.getElementById("error").innerHTML = "El archivo selecionado no se puede cargar";
     };
-};
+}
 
 /* 
 Selecionamos el boton, le agregamos el event 'click'
@@ -190,17 +200,7 @@ Llamamos a la funcion de descarga con los parametros de la url y un titulo para 
 */
 
 document.querySelector('#btn-reset').addEventListener("click", function(e) {
-    let xhr = new XMLHttpRequest();
-    xhr.open('GET', 'blob:http://127.0.0.1:5500/627fd747-ea38-4c53-be55-b993f0b488bb', true);
-    xhr.responseType = 'blob';
-    xhr.onload = function(e) {
-    if (this.status == 200) {
-        var myBlob = this.response;
-        // myBlob is now the blob that the object URL pointed to.
-        console.log(myBlob)
-    }
-    };
-    xhr.send();
+    ctx.drawImage(imageData,0,0,canvas.width,canvas.height);
 });
 
 /*
@@ -359,7 +359,7 @@ document.getElementById('filtros').addEventListener('change', function() {
 
   function filterBrillo()
   {      
-    let img = ctx.getImageData(0,0,canvas.width,canvas.height);
+    let img = imageData;
         for(let x = 0; x < img.width; x++ ){
             for(let y = 0; y < img.height; y++){
                 filterPixelBrillo(img,x,y);
@@ -368,7 +368,7 @@ document.getElementById('filtros').addEventListener('change', function() {
         ctx.putImageData(img,0,0);
   }
   /**
-   * Utilizamos un rango de brillo de 255/100 = 2.55 para que al ajustar los valores de brillo 
+   * Utilizamos un factor de brillo de 255/100 = 2.55 para que al ajustar los valores de brillo 
    * esten entre el rango de (0,255) inicializando con 50(brillo range) como el 0 en cantidad de brillo agregado.
    */
 
@@ -376,15 +376,15 @@ document.getElementById('filtros').addEventListener('change', function() {
   {
     let f = (x + y * imgData.width) * 4;      
     if(brillo >= 50){         
-        imgData.data[f + 0] =  imgData.data[f + 0] + (brillo - 50) * 2.55 ;
-        imgData.data[f + 1] =  imgData.data[f + 1] + (brillo - 50) * 2.55 ; 
-        imgData.data[f + 2] =  imgData.data[f + 2] + (brillo - 50) * 2.55 ;
-        imgData.data[f + 3] = 255;     
+        imgData.data[f + 0] =  imgData.data[f + 0] + (brillo - 50) * 5.1;
+        imgData.data[f + 1] =  imgData.data[f + 1] + (brillo - 50) * 5.1; 
+        imgData.data[f + 2] =  imgData.data[f + 2] + (brillo - 50) * 5.1;
+        imgData.data[f + 3] =  imgData.data[f + 3] + (brillo - 50) * 5.1;    
     }else{
-        imgData.data[f + 0] =  imgData.data[f + 0] - (50 - brillo) * 2.55 ;
-        imgData.data[f + 1] =  imgData.data[f + 1] - (50 - brillo) * 2.55 ; 
-        imgData.data[f + 2] =  imgData.data[f + 2] - (50 - brillo) * 2.55 ;
-        imgData.data[f + 3] = 255;    
+        imgData.data[f + 0] =  imgData.data[f + 0] - (50 - brillo) * 5.1;
+        imgData.data[f + 1] =  imgData.data[f + 1] - (50 - brillo) * 5.1; 
+        imgData.data[f + 2] =  imgData.data[f + 2] - (50 - brillo) * 5.1;
+        imgData.data[f + 3] =  imgData.data[f + 3] - (50 - brillo) * 5.1;    
     }
   }
 
