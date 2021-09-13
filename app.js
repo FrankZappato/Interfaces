@@ -25,7 +25,8 @@ document.addEventListener("DOMContentLoaded",()=>{
 
     //Variables para dibujar
     let sizeView = document.querySelector('#size');
-    let painting = false; 
+    let painting = false;     
+    let erasing = false;
     let pencilColor = 'black';
     let size = 5;
     sizeView.innerHTML = size;
@@ -37,9 +38,24 @@ document.addEventListener("DOMContentLoaded",()=>{
      addEventListenerToPicker();
      addEventToSizeRange();     
  
-     ///document.querySelector('#btn-clear').addEventListener('click',clearCanvas);
+     
      document.querySelector('#btn-undo').addEventListener('click',undoChange);
-        
+     document.querySelector('#btn-rubber').addEventListener('click',changeToRubber);
+     document.querySelector('#btn-pencil').addEventListener('click',changeToPencil);
+     
+     function changeToRubber()
+     {
+        pencilColor = 'white';
+        size = 20;
+        erasing = true;
+     }
+
+     function changeToPencil()
+     {
+        pencilColor = 'black';
+        size = 5;
+        erasing = false;
+     }
 
 
     function clearCanvas(){
@@ -100,7 +116,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     /**
      * Funcion para dibujar disparado el evento mousemove, solo si el boolean painting es 'true'.
      * @param {Event} event 
-     * @returns void
+     * @returns Void
      */
     function draw(event)
     {
@@ -111,12 +127,17 @@ document.addEventListener("DOMContentLoaded",()=>{
              getPointerPositionY(event) - canvas.offsetTop);
         ctx.strokeStyle = pencilColor;
         ctx.lineWidth = size;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
+        if(!erasing){
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+        }else{
+            ctx.lineCap = 'square';
+            ctx.lineJoin = 'square';
+        }
         ctx.stroke();    
         event.preventDefault();         
     }
-
+    
     function getPointerPositionX(event)
     {        
         return (event.clientX + window.scrollX);
@@ -128,7 +149,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 
     //EventListeners
     canvas.addEventListener("mousedown",startPosition);
-    canvas.addEventListener("mousemove",draw);
+    canvas.addEventListener("mousemove",draw);    
     canvas.addEventListener("mouseup",finishedPosition);
     canvas.addEventListener("mouseout",finishedPosition);
 
