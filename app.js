@@ -267,6 +267,66 @@ function filterPixelNegative(imgData,x,y)
         }
     }
 
+    // function filterSobel(){
+    //     let img = ctx.getImageData(0,0,canvas.width,canvas.height);
+    //     for (let y = 1, i = (img.width + 1) * 4; y < img.height - 1; ++y, i += 8) {
+    //         for (let x = 1; x < img.width - 1; ++x, i += 4) {
+    //             filterPixelSobel(img,x,y, i);
+    //         }
+    //     }
+    //     ctx.putImageData(img,0, 0, 0, 0, img.width, 1);
+    // }
+
+    // function filterPixelSobel(imgData,x,y,i){
+    //     let Kx = [-1, 0, 1, -2, 0, 2, -1, 0, 1]
+    //     let Ky = [-1, -2, -1, 0, 0, 0, +1, +2, +1]
+    //     let cx = 0, cy = 0;
+    //     for (let yk = y - 1, j = 0; yk <= y + 1; ++yk) {
+    //         for (let xk = x - 1; xk <= x + 1; ++xk, ++j) {
+    //         let i = (yk * imgData.width + xk) << 2;
+    //         cx += imgData.data[i] * Kx[j];
+    //         cy += imgData.data[i] * Ky[j];
+    //         }
+    //     }
+    //     // let f = (x + y * imgData.width) * 4; 
+    //     imgData.data[i + 0] = 
+    //     imgData.data[i + 1] = 
+    //     imgData.data[i + 2] = 255 + imgData.data[i + 2] - Math.hypot(cx, cy);
+    //     imgData.data[i + 3] = 255;
+    // }
+
+    function filterSobel(){
+        let img = ctx.getImageData(0,0,canvas.width,canvas.height);
+        for(let x = 0; x < img.width; x++ ){
+            for(let y = 0; y < img.height; y++){
+                filterPixelSobel(img,x,y);
+            }
+        }
+        ctx.putImageData(img,0,0);
+    }
+
+    function filterPixelSobel(imgData,x,y){
+        for (var i = 0; i < imgData.length; i += 4) {
+            var r = imgData[i]; 
+            var g = imgData[i + 1];
+            var b = imgData[i + 2];
+            var gray = 0.2989*r + 0.5870*g + 0.1140*b; //weights from CCIR 601 spec
+            imgData[i] = -gray * x + imgData[i] * (1+x);
+            imgData[i] = -gray * y + imgData[i] * (1+y);
+            imgData[i+1] = -gray * x + imgData[i+1] * (1+x);
+            imgData[i+1] = -gray * y + imgData[i+1] * (1+y);
+            imgData[i+2] = -gray * x + imgData[i+2] * (1+x);
+            imgData[i+2] = -gray * y + imgData[i+2] * (1+y);
+            //normalize over- and under-saturated values
+            if(imgData[i] > 255) imgData[i] = 255;
+            if(imgData[i+1] > 255) imgData[i] = 255;
+            if(imgData[i+2] > 255) imgData[i] = 255;
+            if(imgData[i] < 0) imgData[i] = 0;
+            if(imgData[i+1] < 0) imgData[i] = 0;
+            if(imgData[i+2] < 0) imgData[i] = 0;
+        }
+    }
+
 
 /* FILTROS*/ 
 document.getElementById('filtros').addEventListener('change', function() {
@@ -284,6 +344,9 @@ document.getElementById('filtros').addEventListener('change', function() {
         }
         ctx.putImageData(imgData, 0, 0);
     } 
+    if(this.value == "sobel"){
+        filterSobel();
+    }
     if(this.value == "negative"){
         filterNegative();
     } 
@@ -324,28 +387,4 @@ document.getElementById('filtros').addEventListener('change', function() {
         delete(tmpPx)
     }
   });
-
-  /*function filterBlur()
-  {
-    let img = ctx.getImageData(0,0,canvas.width,canvas.height);
-    for(let x = 0; x < img.width; x++ ){
-        for(let y = 0; y < img.height; y++){
-            filterPixelBinary(img,x,y);
-        }
-    }
-    ctx.putImageData(img,0,0);
-  }
-  function filterPixelBlur(imgData,x,y){
-    let f = (x + y * imgData.width) * 4; 
-    let avg = ( imgData.data[f + 0] + imgData.data[f + 1] + imgData.data[f + 2]) / 3;      
-    if(avg < 127.5) {
-        imgData.data[f + 0] = 0;
-        imgData.data[f + 1] = 0;
-        imgData.data[f + 2] = 0;
-    }else{
-        imgData.data[f + 0] = 255;
-        imgData.data[f + 1] = 255;
-        imgData.data[f + 2] = 255;
-    }
-}*/
 });
