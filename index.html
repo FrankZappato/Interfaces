@@ -9,11 +9,8 @@
     <script src="app.js"></script>
     <title>Document</title>
 </head>
-<div>
-    <header>
-        <div class="title shadow">
-            <h1 >Ejercicio Entregable – Práctico Nº1</h1>
-        </div>
+<body>    
+    <header>            
         <nav class="d-flex align-items-center nav">
             <label for="select_image" class="btn">Imagen</label>
             <input 
@@ -22,10 +19,7 @@
             id="select_image" 
             name="image" 
             onchange="putImage()"
-            style="display: none;"/>
-            <button class="btn" id="btn-small">Small</button>
-            <button class="btn" id="btn-medium">Medium</button>
-            <button class="btn" id="btn-standard">Standard</button>
+            style="display: none;"/>                
             <button class="btn" id="btn-save">Guardar</button>
             <p id="error"></p>
             <select id="filtros" class="form-select" style="width: 160px;">
@@ -48,24 +42,33 @@
         
                 <input type="color" class="color-picker" id="color_picker">
                 <div class="range-box">
+                    <label> Size</label>                        
                     <input type="range" min="1" max="100" class="pencil-range" id="pencil_range">
-                    <label id="size"></label>
-                </div>    
+                    <label id="size"></label>                        
+                </div>
+                <div class="range-box">    
+                    <label>Brillo</label>
+                    <input type="range" min="0" max="100" class="pencil-range" id="brillo">
+                    <label id="brillo-number"></label>
+                </div>
             </div> 
         </nav>
-    </header>
-    <body>
-        <main 
-            class="main"
-            style="background-color: rgb(243, 243, 243);"
-            >
-            <canvas  
-                id="canvas" 
-                class="canvas">
-                <img id="target" >
-            </canvas>
-        </main>
-    </body>
-    
-</div>
+    </header>        
+    <main 
+        class="main"
+        style="background-color: rgb(243, 243, 243);"
+        >
+        <canvas  
+            id="canvas" 
+            class="canvas">
+            <img id="target" >
+        </canvas>
+    </main> 
+    <footer>
+        <div class="title shadow">
+            <h5 class="footer-content">Ejercicio Entregable – Práctico Nº1</h5>
+            <h5 class="footer-content">Juan Francisco Vaninetti - Lionel Cassar</h5>
+        </div>
+    </footer>  
+</body>
 </html>

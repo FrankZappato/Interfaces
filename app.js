@@ -1,7 +1,9 @@
 document.addEventListener("DOMContentLoaded",()=>{
     //Variables del canvas y su contexto
     let canvas = document.querySelector("#canvas");
-    let ctx = canvas.getContext("2d");
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    let ctx = canvas.getContext("2d");    
 
     //Preset de funciones y variables para agregar eventos al menú.
     function addEventListenerToPicker(){
@@ -29,14 +31,11 @@ document.addEventListener("DOMContentLoaded",()=>{
     sizeView.innerHTML = size;
     sizeChange.value = size;
     let restore_array = [];//array de lineas dibujadas.
-    let idxRestore = -1;//index del array para poder deshacer cambios.
-
-    
+    let idxRestore = -1;//index del array para poder deshacer cambios.    
 
      addEventClickToColors();
      addEventListenerToPicker();
-     addEventToSizeRange();
-     
+     addEventToSizeRange();     
  
      ///document.querySelector('#btn-clear').addEventListener('click',clearCanvas);
      document.querySelector('#btn-undo').addEventListener('click',undoChange);
@@ -66,8 +65,7 @@ document.addEventListener("DOMContentLoaded",()=>{
         pencilColor = event.target.style.background;
     }
 
-    function changeColorWithPicker(event){
-        console.log(event);
+    function changeColorWithPicker(event){        
         pencilColor = event.target.value;
     }
     function changeSizeOfPencil(event){
@@ -79,8 +77,8 @@ document.addEventListener("DOMContentLoaded",()=>{
     {       
         painting = true;
         ctx.beginPath();
-        ctx.moveTo(event.clientX - canvas.offsetLeft,
-             event.clientY - canvas.offsetTop);
+        ctx.moveTo(getPointerPositionX(event) - canvas.offsetLeft,
+             getPointerPositionY(event) - canvas.offsetTop);
         event.preventDefault();
         draw(event);
     }
@@ -98,11 +96,19 @@ document.addEventListener("DOMContentLoaded",()=>{
             idxRestore ++;
         }
     }
+
+    /**
+     * Funcion para dibujar disparado el evento mousemove, solo si el boolean painting es 'true'.
+     * @param {Event} event 
+     * @returns void
+     */
     function draw(event)
     {
-        if(!painting) return;
-        ctx.lineTo(event.clientX - canvas.offsetLeft,
-             event.clientY - canvas.offsetTop);
+        if(!painting) return;  
+        //setInterval(getPointerPositionX(event), 100);      
+        //setInterval(getPointerPositionY(event), 100);      
+        ctx.lineTo(getPointerPositionX(event) - canvas.offsetLeft,
+             getPointerPositionY(event) - canvas.offsetTop);
         ctx.strokeStyle = pencilColor;
         ctx.lineWidth = size;
         ctx.lineCap = 'round';
@@ -111,11 +117,23 @@ document.addEventListener("DOMContentLoaded",()=>{
         event.preventDefault();         
     }
 
+    function getPointerPositionX(event)
+    {        
+        return (event.clientX + window.scrollX);
+    }
+    function getPointerPositionY(event)
+    {        
+        return (event.clientY + window.scrollY);
+    }
+
     //EventListeners
     canvas.addEventListener("mousedown",startPosition);
     canvas.addEventListener("mousemove",draw);
     canvas.addEventListener("mouseup",finishedPosition);
     canvas.addEventListener("mouseout",finishedPosition);
+
+    document.addEventListener("mousemove",getPointerPositionX);
+    document.addEventListener("mousemove",getPointerPositionY);
 
 
 /* BOTONES
@@ -130,12 +148,12 @@ La funcion failed se encarga de mostrar un mensaje de error
 document.getElementById('select_image').onchange = function(e) {
     let img = new Image();
     img.src = URL.createObjectURL(this.files[0]);
-    img.onload = function draw(){
-       // var canvas = document.getElementById('canvas');
-        //var ctx = canvas.getContext('2d');
+    img.onload = function draw(){     
         canvas.width = img.width;
         canvas.height = img.height;
         ctx.drawImage(this, 0, 0, canvas.width, canvas.height);
+        /*let imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
+        return imageData*/
     };
     img.onerror = function failed(){
         document.getElementById("error").innerHTML = "El archivo selecionado no se puede cargar";
@@ -170,12 +188,12 @@ Selecionamos el canvas
 usamos la funcion clearReact para dibujar un nuevo canvas, que en este caso sera vacio
 */
 document.querySelector('#btn-save').addEventListener("click", function(e) {   
-    var dataURL = canvas.toDataURL("image/jpeg", 1.0);
+    let dataURL = canvas.toDataURL("image/jpeg", 1.0);
     downloadImage(dataURL, 'file.jpeg');
 });
 
 function downloadImage(data, filename = 'untitled.jpeg') {
-    var a = document.createElement('a');
+    let a = document.createElement('a');
     a.href = data;
     a.download = filename;
     document.body.appendChild(a);
@@ -189,20 +207,6 @@ document.querySelector('#btn-new').addEventListener("click", function(e) {
     ctx.fillRect(0,0,canvas.width,canvas.height);  
     //ctx.clearRect(0, 0, canvas.width, canvas.height);
 })
-
-//OPCIONAL
-document.querySelector("#btn-small").addEventListener("click", function(e){    
-    canvas.style.width = "30%";
-})
-
-document.querySelector("#btn-medium").addEventListener("click", function(e){    
-    canvas.style.width = "60%";
-})
-document.querySelector("#btn-standard").addEventListener("click", function(){    
-    canvas.style.width = "100%";
-    canvas.style.margin = "0 0"
-})
-
 
 //Funciones de filtros
 function filterNegative()
@@ -218,8 +222,7 @@ function filterNegative()
 }
 function filterPixelNegative(imgData,x,y)
     {
-        let f = (x + y * imgData.width) * 4; 
-        //let avg = ( imgData.data[f + 0] + imgData.data[f + 1] + imgData.data[f + 2]) / avgFilter;       
+        let f = (x + y * imgData.width) * 4;               
         imgData.data[f + 0] = 255 - imgData.data[f + 0];
         imgData.data[f + 1] = 255 - imgData.data[f + 1];
         imgData.data[f + 2] = 255 - imgData.data[f + 2];
@@ -268,21 +271,10 @@ function filterPixelNegative(imgData,x,y)
     }
 
 
-/* FILTROS*/ 
+/* APLICACION DE  FILTROS*/ 
 document.getElementById('filtros').addEventListener('change', function() {
     if(this.value == "brillo"){        
-        ctx.drawImage(canvas, 0, 0);
-        let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-        // invert colors
-        let i;
-        for (i = 0; i < imgData.data.length; i += 4) {
-            imgData.data[i] = 255 + imgData.data[i];
-            imgData.data[i+1] = 255 + imgData.data[i+1];
-            imgData.data[i+2] = 255 + imgData.data[i+2];
-            imgData.data[i+3] = 255;
-        }
-        ctx.putImageData(imgData, 0, 0);
+        filterBrillo();
     } 
     if(this.value == "negative"){
         filterNegative();
@@ -298,14 +290,14 @@ document.getElementById('filtros').addEventListener('change', function() {
         let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
         //blurr
-        var px = imgData.data;
-        var tmpPx = new Uint8ClampedArray(px.length);
+        let px = imgData.data;
+        let tmpPx = new Uint8ClampedArray(px.length);
 
-        for (var i = 0, len = px.length; i < len; i++) {
+        for (let i = 0, len = px.length; i < len; i++) {
             tmpPx[i] = px[i]
         }
         
-        for (var i = 0, len = px.length; i < len; i++) {
+        for (let i = 0, len = px.length; i < len; i++) {
             if(i % 3 === 4){
                 continue;
             }
@@ -323,7 +315,57 @@ document.getElementById('filtros').addEventListener('change', function() {
         ctx.putImageData(imgData, 0, 0);
         delete(tmpPx)
     }
-  });
+  }); 
+   
+  /**
+   * Variables y funciones para el filtro brillo mediante el input range.
+   */
+  let brillo = 50;
+  let brilloChange = document.querySelector("#brillo");
+  function addEventToBrillo(){
+      brilloChange.addEventListener("change",changeBrillo,);
+  }
+  let brilloNumber = document.querySelector("#brillo-number");
+  brilloNumber.innerHTML = brillo; 
+  function changeBrillo(event)
+  {
+      brillo = event.target.value;           
+      brilloNumber.innerHTML = brillo; 
+      filterBrillo();      
+  }  
+
+  addEventToBrillo();  
+
+  function filterBrillo()
+  {      
+    let img = ctx.getImageData(0,0,canvas.width,canvas.height);
+        for(let x = 0; x < img.width; x++ ){
+            for(let y = 0; y < img.height; y++){
+                filterPixelBrillo(img,x,y);
+            }
+        }
+        ctx.putImageData(img,0,0);
+  }
+  /**
+   * Utilizamos un rango de brillo de 255/100 = 2.55 para que al ajustar los valores de brillo 
+   * esten entre el rango de (0,255) inicializando con 50(brillo range) como el 0 en cantidad de brillo agregado.
+   */
+
+  function filterPixelBrillo(imgData,x,y)
+  {
+    let f = (x + y * imgData.width) * 4;      
+    if(brillo >= 50){         
+        imgData.data[f + 0] =  imgData.data[f + 0] + (brillo - 50) * 2.55 ;
+        imgData.data[f + 1] =  imgData.data[f + 1] + (brillo - 50) * 2.55 ; 
+        imgData.data[f + 2] =  imgData.data[f + 2] + (brillo - 50) * 2.55 ;
+        imgData.data[f + 3] = 255;     
+    }else{
+        imgData.data[f + 0] =  imgData.data[f + 0] - (50 - brillo) * 2.55 ;
+        imgData.data[f + 1] =  imgData.data[f + 1] - (50 - brillo) * 2.55 ; 
+        imgData.data[f + 2] =  imgData.data[f + 2] - (50 - brillo) * 2.55 ;
+        imgData.data[f + 3] = 255;    
+    }
+  }
 
   /*function filterBlur()
   {
