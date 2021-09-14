@@ -3,14 +3,28 @@ document.addEventListener("DOMContentLoaded",()=>{
     let canvas = document.querySelector("#canvas");
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
+    let originalWidth;
+    let originalHeight;
     let ctx = canvas.getContext("2d");   
-    let imageData;
-    let imageDataCopy;
+    let imageURL;   
     
-    function changeImageData(imData){
-        imageData = imData;
-        console.log(imData)
+    function changeImageData(imURL){
+        imageURL = imURL;        
     }
+
+    function setOriginalImgSize(width,height){
+        originalWidth = width;
+        originalHeight = height;
+        console.log(originalHeight,originalWidth)
+    }
+
+    function getOriginalImgSizeWidth(){
+        return originalWidth;
+    }
+    function getOriginalImgSizeHeight(){
+        return originalHeight;
+    }
+
 
     //Preset de funciones y variables para agregar eventos al menú.
     function addEventListenerToPicker(){
@@ -127,9 +141,7 @@ document.addEventListener("DOMContentLoaded",()=>{
      */
     function draw(event)
     {
-        if(!painting) return;  
-        //setInterval(getPointerPositionX(event), 100);      
-        //setInterval(getPointerPositionY(event), 100);      
+        if(!painting) return;            
         ctx.lineTo(getPointerPositionX(event) - canvas.offsetLeft,
              getPointerPositionY(event) - canvas.offsetTop);
         ctx.strokeStyle = pencilColor;
@@ -146,8 +158,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     }
     
     function getPointerPositionX(event)
-    {          
-        console.log(event)
+    {         
         return (event.clientX + window.scrollX);
     }
     function getPointerPositionY(event)
@@ -168,7 +179,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 /* BOTONES
 CARGAR IMAGEN:
 La funcion se llama cuando se seleciona un archivo.
-Creamos un variable que se asigna a un metodo javascript Image.
+Creamos un variable que se asigna a una clase javascript Image.
 Si la imagen esta corectamente cargar llama la funcion draw, asignada con la imagen
 en caso contrario a la funcion failed.
 La funcion failed se encarga de mostrar un mensaje de error 
@@ -180,16 +191,29 @@ function uploadImage()
 {
     let img = new Image();
     img.src = URL.createObjectURL(this.files[0]);
-    img.onload = function draw(){       
+    img.onload = function draw(){              
         ctx.drawImage(this, 0, 0, canvas.width, canvas.height);
+        setOriginalImgSize(img.width,img.height);        
         /*let imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
         return imageData*/
-        changeImageData(ctx.getImageData(0,0,canvas.width,canvas.height));        
+        let imURL = canvas.toDataURL('image/png');
+        changeImageData(imURL);        
     };
     img.onerror = function failed(){
         document.getElementById("error").innerHTML = "El archivo selecionado no se puede cargar";
     };
+    console.log(originalHeight,originalWidth)
 }
+
+/*
+Selecionamos el boton, le agregamos el event 'click'
+Selecionamos el canvas
+usamos la funcion clearReact para dibujar un nuevo canvas, que en este caso sera vacio
+*/
+document.querySelector('#btn-save').addEventListener("click", function(e) {       
+    let dataURL = canvas.toDataURL();
+    downloadImage(dataURL, 'file.jpeg');
+});
 
 /* 
 Selecionamos el boton, le agregamos el event 'click'
@@ -198,21 +222,6 @@ Creamos una variable que representa el canvas
 Creamos otra variable para dar una url al canvas
 Llamamos a la funcion de descarga con los parametros de la url y un titulo para la imagen 
 */
-
-document.querySelector('#btn-reset').addEventListener("click", function(e) {
-    ctx.drawImage(imageData,0,0,canvas.width,canvas.height);
-});
-
-/*
-Selecionamos el boton, le agregamos el event 'click'
-Selecionamos el canvas
-usamos la funcion clearReact para dibujar un nuevo canvas, que en este caso sera vacio
-*/
-document.querySelector('#btn-save').addEventListener("click", function(e) {   
-    let dataURL = canvas.toDataURL("image/jpeg", 1.0);
-    downloadImage(dataURL, 'file.jpeg');
-});
-
 function downloadImage(data, filename = 'untitled.jpeg') {
     let a = document.createElement('a');
     a.href = data;
@@ -359,7 +368,7 @@ document.getElementById('filtros').addEventListener('change', function() {
 
   function filterBrillo()
   {      
-    let img = imageData;
+    let img = ctx.getImageData(0, 0, canvas.width, canvas.height);
         for(let x = 0; x < img.width; x++ ){
             for(let y = 0; y < img.height; y++){
                 filterPixelBrillo(img,x,y);
@@ -368,7 +377,7 @@ document.getElementById('filtros').addEventListener('change', function() {
         ctx.putImageData(img,0,0);
   }
   /**
-   * Utilizamos un factor de brillo de 255/100 = 2.55 para que al ajustar los valores de brillo 
+   * Utilizamos un factor de brillo de 255/50 = 5.1 para que al ajustar los valores de brillo 
    * esten entre el rango de (0,255) inicializando con 50(brillo range) como el 0 en cantidad de brillo agregado.
    */
 
