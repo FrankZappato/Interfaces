@@ -208,23 +208,17 @@ function uploadImage()
     };    
 }
 
-/*
+/* 
 Selecionamos el boton, le agregamos el event 'click'
-Selecionamos el canvas
-usamos la funcion clearReact para dibujar un nuevo canvas, que en este caso sera vacio
+Creamos otra variable para dar una url al canvas
+Llamamos a la funcion de descarga con los parametros de la url y un titulo para la imagen 
 */
 document.querySelector('#btn-save').addEventListener("click", function(e) {       
     let dataURL = canvas.toDataURL();
     downloadImage(dataURL, 'file.jpeg');
 });
 
-/* 
-Selecionamos el boton, le agregamos el event 'click'
-Convertimos el canvas en una imagen
-Creamos una variable que representa el canvas
-Creamos otra variable para dar una url al canvas
-Llamamos a la funcion de descarga con los parametros de la url y un titulo para la imagen 
-*/
+
 function downloadImage(data, filename = 'untitled.jpeg') {
     let a = document.createElement('a');
     a.href = data;
@@ -232,7 +226,9 @@ function downloadImage(data, filename = 'untitled.jpeg') {
     document.body.appendChild(a);
     a.click();
 }
-
+document.querySelector('#btn-restore').addEventListener('click',function(){
+     ctx.drawImage(imgOriginal,0,0,canvas.width,canvas.height);
+})
 //Limpiamos el canvas utilizando clearRect.
 document.querySelector('#btn-new').addEventListener("click", function(e) {  
     ctx.fillStyle  = 'white';
