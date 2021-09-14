@@ -1,12 +1,15 @@
 document.addEventListener("DOMContentLoaded",()=>{
     //Variables del canvas y su contexto
-    let canvas = document.querySelector("#canvas");
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-    let originalWidth;
-    let originalHeight;
+    let canvas = document.querySelector("#canvas");       
     let ctx = canvas.getContext("2d");     
-    let imgOriginal; 
+    let imgOriginal;    
+
+    function setCanvasSize(canvasWidth,canvasHeight){        
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+    }
+
+    setCanvasSize(canvas.offsetWidth,canvas.offsetHeight);
     
     function changeImageData(imURL){
         imageURL = imURL;        
@@ -14,21 +17,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 
     function setImagenOriginal(img){
         imgOriginal = img;
-    }
-
-    function setOriginalImgSize(width,height){
-        originalWidth = width;
-        originalHeight = height;
-        console.log(originalHeight,originalWidth)
-    }
-
-    function getOriginalImgSizeWidth(){
-        return originalWidth;
-    }
-    function getOriginalImgSizeHeight(){
-        return originalHeight;
-    }
-
+    } 
 
     //Preset de funciones y variables para agregar eventos al menú.
     function addEventListenerToPicker(){
@@ -117,9 +106,9 @@ document.addEventListener("DOMContentLoaded",()=>{
     function startPosition(event)
     {       
         painting = true;
-        ctx.beginPath();
-        ctx.moveTo(getPointerPositionX(event) - canvas.offsetLeft,
-             getPointerPositionY(event) - canvas.offsetTop);
+        ctx.beginPath();        
+        ctx.moveTo(getPointerPositionX(event),
+            getPointerPositionY(event));
         event.preventDefault();
         draw(event);
     }
@@ -145,9 +134,9 @@ document.addEventListener("DOMContentLoaded",()=>{
      */
     function draw(event)
     {
-        if(!painting) return;            
-        ctx.lineTo(getPointerPositionX(event) - canvas.offsetLeft,
-             getPointerPositionY(event) - canvas.offsetTop);
+        if(!painting) return;        
+        ctx.lineTo(getPointerPositionX(event),
+                getPointerPositionY(event));                   
         ctx.strokeStyle = pencilColor;
         ctx.lineWidth = size;
         if(!erasing){
@@ -163,12 +152,13 @@ document.addEventListener("DOMContentLoaded",()=>{
     
     function getPointerPositionX(event)
     {         
-        return (event.clientX + window.scrollX);
+        return (event.clientX + window.scrollX - canvas.offsetLeft);
     }
     function getPointerPositionY(event)
     {   
-        return (event.clientY + window.scrollY);
+        return (event.clientY + window.scrollY - canvas.offsetTop);
     }
+    
 
     //EventListeners
     canvas.addEventListener("mousedown",startPosition);
@@ -196,8 +186,14 @@ function uploadImage()
     let img = new Image();
     img.src = URL.createObjectURL(this.files[0]);
     setImagenOriginal(img);
-    img.onload = function draw(){              
-        ctx.drawImage(this, 0, 0, canvas.width, canvas.height);               
+    img.onload = function draw(){          
+        //setCanvasSize(img.width,img.height);
+        //canvas.style.width = img.width;
+        //canvas.style.height = img.height;
+        //let sx = img.width - canvas.width;
+        //let sy = img.height - canvas.height;        
+        ctx.drawImage(this,0,0, canvas.width, canvas.height); 
+        //drawImageProp(ctx,img,0,0,canvas.width,canvas.height,0.1,0.1);             
         /*let imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
         return imageData*/
         let imURL = canvas.toDataURL('image/png');
@@ -208,12 +204,60 @@ function uploadImage()
     };    
 }
 
+/*function drawImageProp(ctx, img, x, y, w, h, offsetX, offsetY) {
+
+    if (arguments.length === 2) {
+        x = y = 0;
+        w = ctx.canvas.width;
+        h = ctx.canvas.height;
+    }
+
+    // default offset is center
+    offsetX = typeof offsetX === "number" ? offsetX : 0.5;
+    offsetY = typeof offsetY === "number" ? offsetY : 0.5;
+
+    // keep bounds [0.0, 1.0]
+    if (offsetX < 0) offsetX = 0;
+    if (offsetY < 0) offsetY = 0;
+    if (offsetX > 1) offsetX = 1;
+    if (offsetY > 1) offsetY = 1;
+
+    var iw = img.width,
+        ih = img.height,
+        r = Math.min(w / iw, h / ih),
+        nw = iw * r,   // new prop. width
+        nh = ih * r,   // new prop. height
+        cx, cy, cw, ch, ar = 1;
+
+    // decide which gap to fill    
+    if (nw < w) ar = w / nw;                             
+    if (Math.abs(ar - 1) < 1e-14 && nh < h) ar = h / nh;  // updated
+    nw *= ar;
+    nh *= ar;
+
+    // calc source rectangle
+    cw = iw / (nw / w);
+    ch = ih / (nh / h);
+
+    cx = (iw - cw) * offsetX;
+    cy = (ih - ch) * offsetY;
+
+    // make sure source rectangle is valid
+    if (cx < 0) cx = 0;
+    if (cy < 0) cy = 0;
+    if (cw > iw) cw = iw;
+    if (ch > ih) ch = ih;
+
+    // fill image in dest. rectangle
+    ctx.drawImage(img, cx, cy, cw, ch,  x, y, w, h);
+}*/
+
 /* 
 Selecionamos el boton, le agregamos el event 'click'
 Creamos otra variable para dar una url al canvas
 Llamamos a la funcion de descarga con los parametros de la url y un titulo para la imagen 
 */
-document.querySelector('#btn-save').addEventListener("click", function(e) {       
+document.querySelector('#btn-save').addEventListener("click", function(e) {        
     let dataURL = canvas.toDataURL();
     downloadImage(dataURL, 'file.jpeg');
 });
@@ -236,8 +280,9 @@ document.querySelector('#btn-new').addEventListener("click", function(e) {
     ctx.fillRect(0,0,canvas.width,canvas.height);  
     //ctx.clearRect(0, 0, canvas.width, canvas.height);
 })
+
 /**
- * Funcion para utilizar la imagen original al aplicar un filtro siempre sobre los pixeles originales y que no se superpongan.
+ * Funcion para utilizar la imagen original al restaurarla.
  * @returns Canvas context of the origina image.
  */
 function getOriginalImageData(){
@@ -252,7 +297,7 @@ function getOriginalImageData(){
 //Funciones de filtros
 function filterNegative()
 {
-    let img = getOriginalImageData();         
+    let img = ctx.getImageData(0,0,canvas.width,canvas.height);        
         for(let x = 0; x < img.width; x++){
             for(let y = 0; y < img.height; y++){
                 avgFilter = 3;
@@ -271,7 +316,7 @@ function filterPixelNegative(imgData,x,y)
     }
 
     function filterSepia(){
-        let img = getOriginalImageData();
+        let img = ctx.getImageData(0,0,canvas.width,canvas.height);
         for(let x = 0; x < img.width; x++ ){
             for(let y = 0; y < img.height; y++){
                 filterPixelSepia(img,x,y);
@@ -288,7 +333,7 @@ function filterPixelNegative(imgData,x,y)
     }
 
     function filterBinary(){        
-        let img = getOriginalImageData();
+        let img = ctx.getImageData(0,0,canvas.width,canvas.height);
         for(let x = 0; x < img.width; x++ ){
             for(let y = 0; y < img.height; y++){
                 filterPixelBinary(img,x,y);
@@ -326,35 +371,11 @@ document.getElementById('filtros').addEventListener('change', function() {
     if(this.value == "binary"){
         filterBinary();
     } 
-    if(this.value == "blur"){        
-        ctx.drawImage(canvas, 0, 0);
-        let imgData = getOriginalImageData();
-
-        //blurr
-        let px = imgData.data;
-        let tmpPx = new Uint8ClampedArray(px.length);
-
-        for (let i = 0, len = px.length; i < len; i++) {
-            tmpPx[i] = px[i]
-        }
-        
-        for (let i = 0, len = px.length; i < len; i++) {
-            if(i % 3 === 4){
-                continue;
-            }
-            px[i] = (tmpPx[i]
-                + (tmpPx[i - 4] || tmpPx[i])
-                + (tmpPx[i + 4] || tmpPx[i])
-                + (tmpPx[i - 4 * imgData.width] || tmpPx[i])
-                + (tmpPx[i + 4 * imgData.width] || tmpPx[i])
-                + (tmpPx[i - 4 * imgData.width - 4] || tmpPx[i])
-                + (tmpPx[i + 4 * imgData.width + 4] || tmpPx[i])
-                + (tmpPx[i - 4 * imgData.width - 4] || tmpPx[i])
-                + (tmpPx[i + 4 * imgData.width + 4] || tmpPx[i])
-            ) / 9;
-        }
-        ctx.putImageData(imgData, 0, 0);
-        delete(tmpPx)
+    if(this.value == "sobel"){
+        filterSobel();
+    } 
+    if(this.value == "blur"){
+        filterBlur();         
     }
   }); 
    
@@ -379,7 +400,7 @@ document.getElementById('filtros').addEventListener('change', function() {
 
   function filterBrillo()
   {      
-    let img = getOriginalImageData();
+    let img = ctx.getImageData(0,0,canvas.width,canvas.height);
         for(let x = 0; x < img.width; x++ ){
             for(let y = 0; y < img.height; y++){
                 filterPixelBrillo(img,x,y);
@@ -408,27 +429,61 @@ document.getElementById('filtros').addEventListener('change', function() {
     }
   }
 
-  /*function filterBlur()
-  {
-    let img = ctx.getImageData(0,0,canvas.width,canvas.height);
+  function filterSobel(){
+    let img = ctx.getImageData(0,0,canvas.width,canvas.height);    
     for(let x = 0; x < img.width; x++ ){
         for(let y = 0; y < img.height; y++){
-            filterPixelBinary(img,x,y);
+            filterPixelSobel(img,x,y);
         }
     }
-    ctx.putImageData(img,0,0);
-  }
-  function filterPixelBlur(imgData,x,y){
-    let f = (x + y * imgData.width) * 4; 
-    let avg = ( imgData.data[f + 0] + imgData.data[f + 1] + imgData.data[f + 2]) / 3;      
-    if(avg < 127.5) {
-        imgData.data[f + 0] = 0;
-        imgData.data[f + 1] = 0;
-        imgData.data[f + 2] = 0;
-    }else{
-        imgData.data[f + 0] = 255;
-        imgData.data[f + 1] = 255;
-        imgData.data[f + 2] = 255;
+    ctx.putImageData(img,0, 0);
+}
+
+function filterPixelSobel(imgData,x,y){
+    let Gx = [-1, 0, 1, -2, 0, 2, -1, 0, 1]
+    let Gy = [-1, -2, -1, 0, 0, 0, +1, +2, +1]
+    let cx = 0, cy = 0;
+    for (let yk = y - 1, j = 0; yk <= y + 1; ++yk) {
+        for (let xk = x - 1; xk <= x + 1; ++xk, ++j) {
+            let i = (y * imgData.width + xk) * 4;
+            cx += imgData.data[i] * Gx[j];
+            cy += imgData.data[i] * Gy[j];
+        }
     }
-}*/
+    let G = Math.sqrt((cx * cx) + (cy * cy))       
+    let f = (x + y * imgData.width) * 4; 
+    imgData.data[f + 0] = 255 - G;
+    imgData.data[f + 1] = 255 - G;
+    imgData.data[f + 2] = 255 - G;
+    imgData.data[f + 3] = 255;
+}
+function filterBlur(){
+    //ctx.drawImage(canvas, 0, 0);
+    let imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
+    //blurr
+    let px = imgData.data;
+    let tmpPx = new Uint8ClampedArray(px.length);
+
+    for (let i = 0, len = px.length; i < len; i++) {
+        tmpPx[i] = px[i]
+    }
+    
+    for (let i = 0, len = px.length; i < len; i++) {
+        if(i % 3 === 4){
+            continue;
+        }
+        px[i] = (tmpPx[i]
+            + (tmpPx[i - 4] || tmpPx[i])
+            + (tmpPx[i + 4] || tmpPx[i])
+            + (tmpPx[i - 4 * imgData.width] || tmpPx[i])
+            + (tmpPx[i + 4 * imgData.width] || tmpPx[i])
+            + (tmpPx[i - 4 * imgData.width - 4] || tmpPx[i])
+            + (tmpPx[i + 4 * imgData.width + 4] || tmpPx[i])
+            + (tmpPx[i - 4 * imgData.width - 4] || tmpPx[i])
+            + (tmpPx[i + 4 * imgData.width + 4] || tmpPx[i])
+        ) / 9;
+    }
+    ctx.putImageData(imgData, 0, 0);
+    delete(tmpPx)
+}  
 });
