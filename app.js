@@ -5,11 +5,15 @@ document.addEventListener("DOMContentLoaded",()=>{
     canvas.height = canvas.offsetHeight;
     let originalWidth;
     let originalHeight;
-    let ctx = canvas.getContext("2d");   
-    let imageURL;   
+    let ctx = canvas.getContext("2d");     
+    let imgOriginal; 
     
     function changeImageData(imURL){
         imageURL = imURL;        
+    }
+
+    function setImagenOriginal(img){
+        imgOriginal = img;
     }
 
     function setOriginalImgSize(width,height){
@@ -191,9 +195,9 @@ function uploadImage()
 {
     let img = new Image();
     img.src = URL.createObjectURL(this.files[0]);
+    setImagenOriginal(img);
     img.onload = function draw(){              
-        ctx.drawImage(this, 0, 0, canvas.width, canvas.height);
-        setOriginalImgSize(img.width,img.height);        
+        ctx.drawImage(this, 0, 0, canvas.width, canvas.height);               
         /*let imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
         return imageData*/
         let imURL = canvas.toDataURL('image/png');
@@ -201,8 +205,7 @@ function uploadImage()
     };
     img.onerror = function failed(){
         document.getElementById("error").innerHTML = "El archivo selecionado no se puede cargar";
-    };
-    console.log(originalHeight,originalWidth)
+    };    
 }
 
 /*
@@ -237,11 +240,23 @@ document.querySelector('#btn-new').addEventListener("click", function(e) {
     ctx.fillRect(0,0,canvas.width,canvas.height);  
     //ctx.clearRect(0, 0, canvas.width, canvas.height);
 })
+/**
+ * Funcion para utilizar la imagen original al aplicar un filtro siempre sobre los pixeles originales y que no se superpongan.
+ * @returns Canvas context of the origina image.
+ */
+function getOriginalImageData(){
+    let canvasCopy = document.createElement('canvas');    
+    canvasCopy.height = canvas.height;
+    canvasCopy.width = canvas.width;   
+    let ctxCopy = canvasCopy.getContext("2d");
+    ctxCopy.drawImage(imgOriginal,0,0,canvas.width,canvas.height);    
+    return ctxCopy.getImageData(0,0,canvasCopy.width,canvasCopy.height);
+}
 
 //Funciones de filtros
 function filterNegative()
 {
-    let img = ctx.getImageData(0,0,canvas.width,canvas.height);         
+    let img = getOriginalImageData();         
         for(let x = 0; x < img.width; x++){
             for(let y = 0; y < img.height; y++){
                 avgFilter = 3;
@@ -260,7 +275,7 @@ function filterPixelNegative(imgData,x,y)
     }
 
     function filterSepia(){
-        let img = ctx.getImageData(0,0,canvas.width,canvas.height);
+        let img = getOriginalImageData();
         for(let x = 0; x < img.width; x++ ){
             for(let y = 0; y < img.height; y++){
                 filterPixelSepia(img,x,y);
@@ -276,8 +291,8 @@ function filterPixelNegative(imgData,x,y)
         imgData.data[f + 2] = avg * 0.17;
     }
 
-    function filterBinary(){
-        let img = ctx.getImageData(0,0,canvas.width,canvas.height);
+    function filterBinary(){        
+        let img = getOriginalImageData();
         for(let x = 0; x < img.width; x++ ){
             for(let y = 0; y < img.height; y++){
                 filterPixelBinary(img,x,y);
@@ -317,7 +332,7 @@ document.getElementById('filtros').addEventListener('change', function() {
     } 
     if(this.value == "blur"){        
         ctx.drawImage(canvas, 0, 0);
-        let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        let imgData = getOriginalImageData();
 
         //blurr
         let px = imgData.data;
@@ -368,7 +383,7 @@ document.getElementById('filtros').addEventListener('change', function() {
 
   function filterBrillo()
   {      
-    let img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    let img = getOriginalImageData();
         for(let x = 0; x < img.width; x++ ){
             for(let y = 0; y < img.height; y++){
                 filterPixelBrillo(img,x,y);
@@ -385,15 +400,15 @@ document.getElementById('filtros').addEventListener('change', function() {
   {
     let f = (x + y * imgData.width) * 4;      
     if(brillo >= 50){         
-        imgData.data[f + 0] =  imgData.data[f + 0] + (brillo - 50) * 5.1;
-        imgData.data[f + 1] =  imgData.data[f + 1] + (brillo - 50) * 5.1; 
-        imgData.data[f + 2] =  imgData.data[f + 2] + (brillo - 50) * 5.1;
-        imgData.data[f + 3] =  imgData.data[f + 3] + (brillo - 50) * 5.1;    
+        imgData.data[f + 0] =  imgData.data[f + 0] + (brillo - 50) * 2.55;
+        imgData.data[f + 1] =  imgData.data[f + 1] + (brillo - 50) * 2.55; 
+        imgData.data[f + 2] =  imgData.data[f + 2] + (brillo - 50) * 2.55;
+        imgData.data[f + 3] =  imgData.data[f + 3] + (brillo - 50) * 2.55;    
     }else{
-        imgData.data[f + 0] =  imgData.data[f + 0] - (50 - brillo) * 5.1;
-        imgData.data[f + 1] =  imgData.data[f + 1] - (50 - brillo) * 5.1; 
-        imgData.data[f + 2] =  imgData.data[f + 2] - (50 - brillo) * 5.1;
-        imgData.data[f + 3] =  imgData.data[f + 3] - (50 - brillo) * 5.1;    
+        imgData.data[f + 0] =  imgData.data[f + 0] - (50 - brillo) * 2.55;
+        imgData.data[f + 1] =  imgData.data[f + 1] - (50 - brillo) * 2.55; 
+        imgData.data[f + 2] =  imgData.data[f + 2] - (50 - brillo) * 2.55;
+        imgData.data[f + 3] =  imgData.data[f + 3] - (50 - brillo) * 2.55;    
     }
   }
 
