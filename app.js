@@ -309,6 +309,27 @@ function filterPixelNegative(imgData,x,y)
         }
     }
 
+    function filterGray(){   
+        let img = ctx.getImageData(0,0,canvas.width,canvas.height);
+        avgFilter = 3;        
+        for(let x = 0; x < img.width; x++){
+            for(let y = 0; y < img.height; y++){                
+                filterPixelGray(img,x,y,avgFilter);
+                }
+        }  
+        ctx.putImageData(img,0,0);             
+    }
+
+    function filterPixelGray(imgData,x,y,avgFilter)
+    {
+        let f = (x + y * imgData.width) * 4; 
+        let avg = ( imgData.data[f + 0] + imgData.data[f + 1] + imgData.data[f + 2]) / avgFilter;       
+        imgData.data[f + 0] = avg;
+        imgData.data[f + 1] = avg;
+        imgData.data[f + 2] = avg;
+        //imgData.data[f + 3] = avg; 
+    }
+
 /**
 * Variables y funciones para el filtro brillo mediante el input range.
 */
@@ -435,7 +456,10 @@ if(this.value == "brillo"){
         filterSobel();
     } 
     if(this.value == "blur"){
-        filterBlur();         
+        filterBlur();    
+    } 
+    if(this.value == "gray"){
+        filterGray();        
     }
   });  
 });
