@@ -189,15 +189,8 @@ function uploadImage()
     img.src = URL.createObjectURL(this.files[0]);
     setImagenOriginal(img);
     img.onload = function draw(){          
-        setCanvasSize(img.width,img.height);
-        //canvas.style.width = img.width;
-        //canvas.style.height = img.height;
-        //let sx = img.width - canvas.width;
-        //let sy = img.height - canvas.height;        
-        ctx.drawImage(this,0,0, canvas.width, canvas.height); 
-        //drawImageProp(ctx,img,0,0,canvas.width,canvas.height,0.1,0.1);             
-        /*let imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
-        return imageData*/
+        setCanvasSize(img.width,img.height);                
+        ctx.drawImage(this,0,0, canvas.width, canvas.height);         
         let imURL = canvas.toDataURL('image/png');
         changeImageData(imURL);        
     };
