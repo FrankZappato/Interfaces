@@ -13,14 +13,14 @@
 <body>    
     <header>            
         <nav class="d-flex align-items-center nav">
-            <label for="select_image" class="btn">Imagen</label>
+            <label for="select_image" class="btn"><i class="fas fa-upload"></i> Imagen</label>
             <input 
             class="btn" 
             type="file" 
             id="select_image" 
             name="image"             
             style="display: none;"/>                
-            <button class="btn" id="btn-save">Guardar</button>
+            <button class="btn" id="btn-save"><i class="fas fa-download"></i> Descargar</button>
             <p id="error"></p>
             <select id="filtros" class="form-select" style="width: 160px;">
                 <option selected>Elegir un filtro</option>
@@ -30,7 +30,7 @@
                 <option value="binary">Binario</option>
                 <option value="sobel">Sobel</option>
             </select>            
-            <button class="btn" id="btn-undo">Undo</button>
+            <button class="btn" id="btn-undo"><i class="fas fa-undo"></i></button>
             <button class="btn" id="btn-new">Clear</button>
             <button class="btn" id="btn-restore">Original</button>
             <button class="btn" id="btn-pencil"><i class="fas fa-pencil-alt"></i></button>

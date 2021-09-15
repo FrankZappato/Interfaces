@@ -28,13 +28,10 @@
 
 .canvas{
     border: 1px solid rgb(151, 151, 151);
-    margin: 30px 0;
-    width: 800px;
-    height: 400px;
+    margin: 30px 0;    
     background-color: white;
     box-shadow:  -3px 2px 9px 6px rgb(114, 114, 114);
-    cursor:url(./image/pencil.jpg), crosshair;
-    
+    cursor:url(./image/pencil.jpg), crosshair;    
 }
 
 .tools{

@@ -3,10 +3,12 @@ document.addEventListener("DOMContentLoaded",()=>{
     let canvas = document.querySelector("#canvas");       
     let ctx = canvas.getContext("2d");     
     let imgOriginal;    
+    canvas.setAttribute("width",800);
+    canvas.setAttribute("height",400);
 
     function setCanvasSize(canvasWidth,canvasHeight){        
-        canvas.width = canvasWidth;
-        canvas.height = canvasHeight;
+        canvas.setAttribute("width",canvasWidth);
+        canvas.setAttribute("height",canvasHeight);
     }
 
     setCanvasSize(canvas.offsetWidth,canvas.offsetHeight);
@@ -187,7 +189,7 @@ function uploadImage()
     img.src = URL.createObjectURL(this.files[0]);
     setImagenOriginal(img);
     img.onload = function draw(){          
-        //setCanvasSize(img.width,img.height);
+        setCanvasSize(img.width,img.height);
         //canvas.style.width = img.width;
         //canvas.style.height = img.height;
         //let sx = img.width - canvas.width;
@@ -203,54 +205,6 @@ function uploadImage()
         document.getElementById("error").innerHTML = "El archivo selecionado no se puede cargar";
     };    
 }
-
-/*function drawImageProp(ctx, img, x, y, w, h, offsetX, offsetY) {
-
-    if (arguments.length === 2) {
-        x = y = 0;
-        w = ctx.canvas.width;
-        h = ctx.canvas.height;
-    }
-
-    // default offset is center
-    offsetX = typeof offsetX === "number" ? offsetX : 0.5;
-    offsetY = typeof offsetY === "number" ? offsetY : 0.5;
-
-    // keep bounds [0.0, 1.0]
-    if (offsetX < 0) offsetX = 0;
-    if (offsetY < 0) offsetY = 0;
-    if (offsetX > 1) offsetX = 1;
-    if (offsetY > 1) offsetY = 1;
-
-    var iw = img.width,
-        ih = img.height,
-        r = Math.min(w / iw, h / ih),
-        nw = iw * r,   // new prop. width
-        nh = ih * r,   // new prop. height
-        cx, cy, cw, ch, ar = 1;
-
-    // decide which gap to fill    
-    if (nw < w) ar = w / nw;                             
-    if (Math.abs(ar - 1) < 1e-14 && nh < h) ar = h / nh;  // updated
-    nw *= ar;
-    nh *= ar;
-
-    // calc source rectangle
-    cw = iw / (nw / w);
-    ch = ih / (nh / h);
-
-    cx = (iw - cw) * offsetX;
-    cy = (ih - ch) * offsetY;
-
-    // make sure source rectangle is valid
-    if (cx < 0) cx = 0;
-    if (cy < 0) cy = 0;
-    if (cw > iw) cw = iw;
-    if (ch > ih) ch = ih;
-
-    // fill image in dest. rectangle
-    ctx.drawImage(img, cx, cy, cw, ch,  x, y, w, h);
-}*/
 
 /* 
 Selecionamos el boton, le agregamos el event 'click'
@@ -277,8 +231,7 @@ document.querySelector('#btn-restore').addEventListener('click',function(){
 document.querySelector('#btn-new').addEventListener("click", function(e) {  
     ctx.fillStyle  = 'white';
     ctx.clearRect(0,0,canvas.width,canvas.height);
-    ctx.fillRect(0,0,canvas.width,canvas.height);  
-    //ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0,0,canvas.width,canvas.height);    
 })
 
 /**
@@ -356,11 +309,118 @@ function filterPixelNegative(imgData,x,y)
         }
     }
 
+/**
+* Variables y funciones para el filtro brillo mediante el input range.
+*/
+let brillo = 50;
+let brilloChange = document.querySelector("#brillo");
+function addEventToBrillo(){
+brilloChange.addEventListener("change",changeBrillo,);
+}
+let brilloNumber = document.querySelector("#brillo-number");
+brilloNumber.innerHTML = brillo; 
+function changeBrillo(event)
+{
+brillo = event.target.value;           
+brilloNumber.innerHTML = brillo; 
+filterBrillo();      
+}  
+
+addEventToBrillo(); 
+
+function filterBrillo()
+{      
+let img = ctx.getImageData(0,0,canvas.width,canvas.height);
+for(let x = 0; x < img.width; x++ ){
+    for(let y = 0; y < img.height; y++){
+        filterPixelBrillo(img,x,y);
+    }
+}
+ctx.putImageData(img,0,0);
+}
+/**
+ * Utilizamos un factor de brillo de 255/50 = 5.1 para que al ajustar los valores de brillo 
+ * esten entre el rango de (0,255) inicializando con 50(brillo range) como el 0 en cantidad de brillo agregado.
+ */
+
+function filterPixelBrillo(imgData,x,y)
+{
+let f = (x + y * imgData.width) * 4;      
+if(brillo >= 50){         
+imgData.data[f + 0] =  imgData.data[f + 0] + (brillo - 50) * 2.55;
+imgData.data[f + 1] =  imgData.data[f + 1] + (brillo - 50) * 2.55; 
+imgData.data[f + 2] =  imgData.data[f + 2] + (brillo - 50) * 2.55;
+imgData.data[f + 3] =  imgData.data[f + 3] + (brillo - 50) * 2.55;    
+}else{
+imgData.data[f + 0] =  imgData.data[f + 0] - (50 - brillo) * 2.55;
+imgData.data[f + 1] =  imgData.data[f + 1] - (50 - brillo) * 2.55; 
+imgData.data[f + 2] =  imgData.data[f + 2] - (50 - brillo) * 2.55;
+imgData.data[f + 3] =  imgData.data[f + 3] - (50 - brillo) * 2.55;    
+}
+}
+
+function filterSobel(){
+let img = ctx.getImageData(0,0,canvas.width,canvas.height);    
+for(let x = 0; x < img.width; x++ ){
+    for(let y = 0; y < img.height; y++){
+        filterPixelSobel(img,x,y);
+    }
+}
+ctx.putImageData(img,0, 0);
+}
+
+function filterPixelSobel(imgData,x,y){
+let Gx = [-1, 0, 1, -2, 0, 2, -1, 0, 1]
+let Gy = [-1, -2, -1, 0, 0, 0, +1, +2, +1]
+let cx = 0, cy = 0;
+for (let yk = y - 1, j = 0; yk <= y + 1; ++yk) {
+    for (let xk = x - 1; xk <= x + 1; ++xk, ++j) {
+        let i = (y * imgData.width + xk) * 4;
+        cx += imgData.data[i] * Gx[j];
+        cy += imgData.data[i] * Gy[j];
+    }
+}
+let G = Math.sqrt((cx * cx) + (cy * cy))       
+let f = (x + y * imgData.width) * 4; 
+imgData.data[f + 0] = 255 - G;
+imgData.data[f + 1] = 255 - G;
+imgData.data[f + 2] = 255 - G;
+imgData.data[f + 3] = 255;
+}
+function filterBlur(){    
+let imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
+//blurr
+let px = imgData.data;
+let tmpPx = new Uint8ClampedArray(px.length);
+
+for (let i = 0, len = px.length; i < len; i++) {
+    tmpPx[i] = px[i]
+}
+
+for (let i = 0, len = px.length; i < len; i++) {
+    if(i % 3 === 4){
+        continue;
+    }
+    px[i] = (tmpPx[i]
+        + (tmpPx[i - 4] || tmpPx[i])
+        + (tmpPx[i + 4] || tmpPx[i])
+        + (tmpPx[i - 4 * imgData.width] || tmpPx[i])
+        + (tmpPx[i + 4 * imgData.width] || tmpPx[i])
+        + (tmpPx[i - 4 * imgData.width - 4] || tmpPx[i])
+        + (tmpPx[i + 4 * imgData.width + 4] || tmpPx[i])
+        + (tmpPx[i - 4 * imgData.width - 4] || tmpPx[i])
+        + (tmpPx[i + 4 * imgData.width + 4] || tmpPx[i])
+    ) / 9;
+}
+ctx.putImageData(imgData, 0, 0);
+delete(tmpPx)
+}  
+
 
 /* APLICACION DE  FILTROS*/ 
 document.getElementById('filtros').addEventListener('change', function() {
-    if(this.value == "brillo"){        
-        filterBrillo();
+if(this.value == "brillo"){        
+    filterBrillo();
     } 
     if(this.value == "negative"){
         filterNegative();
@@ -377,113 +437,5 @@ document.getElementById('filtros').addEventListener('change', function() {
     if(this.value == "blur"){
         filterBlur();         
     }
-  }); 
-   
-  /**
-   * Variables y funciones para el filtro brillo mediante el input range.
-   */
-  let brillo = 50;
-  let brilloChange = document.querySelector("#brillo");
-  function addEventToBrillo(){
-      brilloChange.addEventListener("change",changeBrillo,);
-  }
-  let brilloNumber = document.querySelector("#brillo-number");
-  brilloNumber.innerHTML = brillo; 
-  function changeBrillo(event)
-  {
-      brillo = event.target.value;           
-      brilloNumber.innerHTML = brillo; 
-      filterBrillo();      
-  }  
-
-  addEventToBrillo();  
-
-  function filterBrillo()
-  {      
-    let img = ctx.getImageData(0,0,canvas.width,canvas.height);
-        for(let x = 0; x < img.width; x++ ){
-            for(let y = 0; y < img.height; y++){
-                filterPixelBrillo(img,x,y);
-            }
-        }
-        ctx.putImageData(img,0,0);
-  }
-  /**
-   * Utilizamos un factor de brillo de 255/50 = 5.1 para que al ajustar los valores de brillo 
-   * esten entre el rango de (0,255) inicializando con 50(brillo range) como el 0 en cantidad de brillo agregado.
-   */
-
-  function filterPixelBrillo(imgData,x,y)
-  {
-    let f = (x + y * imgData.width) * 4;      
-    if(brillo >= 50){         
-        imgData.data[f + 0] =  imgData.data[f + 0] + (brillo - 50) * 2.55;
-        imgData.data[f + 1] =  imgData.data[f + 1] + (brillo - 50) * 2.55; 
-        imgData.data[f + 2] =  imgData.data[f + 2] + (brillo - 50) * 2.55;
-        imgData.data[f + 3] =  imgData.data[f + 3] + (brillo - 50) * 2.55;    
-    }else{
-        imgData.data[f + 0] =  imgData.data[f + 0] - (50 - brillo) * 2.55;
-        imgData.data[f + 1] =  imgData.data[f + 1] - (50 - brillo) * 2.55; 
-        imgData.data[f + 2] =  imgData.data[f + 2] - (50 - brillo) * 2.55;
-        imgData.data[f + 3] =  imgData.data[f + 3] - (50 - brillo) * 2.55;    
-    }
-  }
-
-  function filterSobel(){
-    let img = ctx.getImageData(0,0,canvas.width,canvas.height);    
-    for(let x = 0; x < img.width; x++ ){
-        for(let y = 0; y < img.height; y++){
-            filterPixelSobel(img,x,y);
-        }
-    }
-    ctx.putImageData(img,0, 0);
-}
-
-function filterPixelSobel(imgData,x,y){
-    let Gx = [-1, 0, 1, -2, 0, 2, -1, 0, 1]
-    let Gy = [-1, -2, -1, 0, 0, 0, +1, +2, +1]
-    let cx = 0, cy = 0;
-    for (let yk = y - 1, j = 0; yk <= y + 1; ++yk) {
-        for (let xk = x - 1; xk <= x + 1; ++xk, ++j) {
-            let i = (y * imgData.width + xk) * 4;
-            cx += imgData.data[i] * Gx[j];
-            cy += imgData.data[i] * Gy[j];
-        }
-    }
-    let G = Math.sqrt((cx * cx) + (cy * cy))       
-    let f = (x + y * imgData.width) * 4; 
-    imgData.data[f + 0] = 255 - G;
-    imgData.data[f + 1] = 255 - G;
-    imgData.data[f + 2] = 255 - G;
-    imgData.data[f + 3] = 255;
-}
-function filterBlur(){
-    //ctx.drawImage(canvas, 0, 0);
-    let imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
-    //blurr
-    let px = imgData.data;
-    let tmpPx = new Uint8ClampedArray(px.length);
-
-    for (let i = 0, len = px.length; i < len; i++) {
-        tmpPx[i] = px[i]
-    }
-    
-    for (let i = 0, len = px.length; i < len; i++) {
-        if(i % 3 === 4){
-            continue;
-        }
-        px[i] = (tmpPx[i]
-            + (tmpPx[i - 4] || tmpPx[i])
-            + (tmpPx[i + 4] || tmpPx[i])
-            + (tmpPx[i - 4 * imgData.width] || tmpPx[i])
-            + (tmpPx[i + 4 * imgData.width] || tmpPx[i])
-            + (tmpPx[i - 4 * imgData.width - 4] || tmpPx[i])
-            + (tmpPx[i + 4 * imgData.width + 4] || tmpPx[i])
-            + (tmpPx[i - 4 * imgData.width - 4] || tmpPx[i])
-            + (tmpPx[i + 4 * imgData.width + 4] || tmpPx[i])
-        ) / 9;
-    }
-    ctx.putImageData(imgData, 0, 0);
-    delete(tmpPx)
-}  
+  });  
 });
