@@ -1,5 +1,0 @@
-class Tablero {
-    constructor(){
-        
-    }
-}
