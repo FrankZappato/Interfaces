@@ -1,5 +1,22 @@
 .board-container{
     display: flex;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    border : black solid 3px;
+}
+
+.game-container{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+#p1-token,#p2-token{
+    border:black solid 2px;
+}
+.header {
+    display: flex;
+    align-self: center;
     justify-content: center;
 }

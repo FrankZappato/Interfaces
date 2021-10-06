@@ -1,7 +1,11 @@
 class Board {
+    /**
+     *@type {CanvasRenderingContext2D}
+     */
     constructor(cantX,cantY){
-        this.cantY = cantX;
-        this.cantX = cantY;        
+        this.cantX = cantX;
+        this.cantY = cantY; 
+        this.boardMap = [];       
     }
 
     getCantX(){
