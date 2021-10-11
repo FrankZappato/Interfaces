@@ -41,7 +41,10 @@ document.addEventListener("DOMContentLoaded",()=>{
     token1.draw();
     token2.draw();
     board.initBoard();
-    board.drawBoard();  
+    board.drawBoard();
+    ctx.font = '25px serif black';
+    ctx.fillText ("Turno del jugador " + jueguito.getPlayerTurn().getName(),mouse.x+ token1.getRadius(),mouse.y); 
+    ctx.fillText("Cuatro en Linea ", 20, 40);   
 
     jueguito.endGame();
     
@@ -51,7 +54,8 @@ document.addEventListener("DOMContentLoaded",()=>{
             requestAnimationFrame(animate);
             ctx.clearRect(0,0,canvas.width,canvas.height);
             ctx.font = '25px serif';
-            ctx.fillText ("Turno del jugador " + turn.getName(),mouse.x+ token1.getRadius(),mouse.y);                                         
+            ctx.fillText ("Turno del jugador " + turn.getName(),mouse.x+ token1.getRadius(),mouse.y); 
+            ctx.fillText("Cuatro en Linea ", 20, 40);                                        
             jueguito.updateGame(mouse.x,mouse.y);
             
         }

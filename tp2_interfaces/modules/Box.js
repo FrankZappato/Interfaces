@@ -65,18 +65,28 @@ class Box extends Figure{
         this.context.beginPath();       
         this.context.lineWidth = 2;
         //this.context.fillStyle = 'red';
-        this.context.strokeStyle = this.fill;        
+        this.context.strokeStyle = this.fill; 
+        this.context.fillStyle = "black" ;
         this.context.strokeRect(this.posX,this.posY,this.width,this.height); 
+        //this.context.fill();      
         if (this.isHover) {
             let token = new Token(this.posX+this.width/2,this.posY+this.height/2,
                 movedToken.getFill(),this.context,30,movedToken.getCanvas());
             token.draw();
         }
-        if(this.isFilled){       
+        else if(this.isFilled){       
             let token = new Token(this.posX+this.width/2,this.posY+this.height/2,
                 this.token.getFill(),this.context,30,this.token.getCanvas())
             token.draw();
-        }  
+        } else{ 
+            this.context.arc(this.posX+this.width/2,this.posY+this.height/2, 30, Math.PI * 2,0);
+            this.context.strokeStyle = 'black';
+            this.context.lineWidth = 10;
+            this.context.stroke();
+            this.context.fillStyle = "white"               
+            this.context.fill();
+        }
+
         this.context.closePath();
      }
 }

@@ -69,7 +69,7 @@ class Board {
     initBoard(){
         let startingX;
         let box;
-        let distX = 150;        
+        let distX = 80;        
         for (let i = 0; i < this.cantX; i++) {
            // distX = 80;
             for (let j = 0; j < this.cantY; j++) {                     
