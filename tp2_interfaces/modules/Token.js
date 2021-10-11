@@ -2,21 +2,38 @@ class Token extends Figure {
     /**
      *@type {CanvasRenderingContext2D}
      */
-    constructor(posX,posY,fill,context,radius,canvas,mouse){
+    constructor(posX,posY,fill,context,radius,canvas){
         super(posX,posY,fill,context);
        // this.initFigure(posX,posY,fill,context);
         this.radius = radius;
+        this.initPosX = posX;
+        this.initPosY = posY;
         this.canvas = canvas;
         this.context = context; 
-        this.mouse = mouse;       
+       // this.mouse = mouse;       
     }
 
     update(){
         this.draw();
     }
 
+    getCanvas () {
+        return this.canvas;
+    }
+
     getRadius(){
         return this.radius;
+    }
+
+    getFill() {
+        return this.fill;
+    }
+
+    getInitPosX(){
+        return this.initPosX;
+    }
+    getInitPosY(){
+        return this.initPosY;
     }
 
     draw(){

@@ -10,8 +10,8 @@ class Board {
         this.ctx = this.canvas.getContext("2d");       
     }
 
-    update(){
-        this.drawBoard();
+    update(color){
+        this.drawBoard(color);
     }
 
     getCantX(){
@@ -25,31 +25,68 @@ class Board {
     getBoardMap(){
         return this.boardMap;
     }
+    checkFilledColumn(){
+        let boxFilled;
+        let filledColumn = [];
+        this.getBoardMap().forEach(col =>{
+            col.forEach(box =>{
+                if(box.getIsHovered()){
+                    filledColumn =  col;
+                }
+            })
+        }) 
+        return filledColumn;
+    }
+
+    tokenDrop(col,token){
+        let i = col.length - 1; 
+        let finish = false;     
+        if(i != 0){
+            while((i >= 0 ) && (!finish)){
+                if (col[0].getIsFilled())
+                    finish = true;
+                if (!col[i].getIsFilled()) {
+                    col[i].filled(token);
+                    finish = true;                    
+                }
+                i--;
+                
+            }
+        }
+        return finish;
+    }
 
     getColumn(col){        
         let column = [];
         for(var i=0; i<this.boardMap.length; i++){
-            column.push(this.boardMap[i][col]);
+            column.push(this.boardMap[col][i]);
         }
         return column;         
     }
+    /**
+     * Inicializo el tablero con sus respectivos casilleros y lo dibujo.
+     */
     initBoard(){
         let startingX;
-        let box;        
+        let box;
+        let distX = 150;        
         for (let i = 0; i < this.cantX; i++) {
+           // distX = 80;
             for (let j = 0; j < this.cantY; j++) {                     
-                startingX = i * 70 + ((this.canvas.width/2) - ((this.cantX * 70)/2)); 
+                startingX = i * distX + ((this.canvas.width/2) - ((this.cantX * 70)/2)); 
                 box = new Box(startingX,j*70 + 80,70,70,'black',this.ctx);
-                box.draw();                 
-                this.boardMap[i][j] = box;              
+                box.draw('white');                 
+                this.boardMap[i][j] = box;                              
             }
         }
     }
-
-    drawBoard(){
+    /**
+     * Recorro los casilleros del tablero para redibujarlos en su estado actual.
+     */
+    drawBoard(color){
         this.getBoardMap().forEach(col =>{
             col.forEach(box =>{
-                box.draw();
+                box.draw(color);
             })
         })        
     }

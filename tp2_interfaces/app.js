@@ -8,6 +8,12 @@ document.addEventListener("DOMContentLoaded",()=>{
         x : innerWidth/2,
         y : innerHeight/2
     }
+
+    let posxToken1 = 100;
+    let posyToken1 = 500;
+    let posxToken2 = 100;
+    let posyToken2 = 300;    
+
     let canvas = document.querySelector('#default-board');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -21,11 +27,11 @@ document.addEventListener("DOMContentLoaded",()=>{
     });
 
     isMoving = false;
-    token1 = new Token(100,500,'red',ctx,30,canvas,mouse);
-    token2 = new Token(1200,500,'blue',ctx,30,canvas,mouse);
+    token1 = new Token(posxToken1,posyToken1,'red',ctx,30,canvas,mouse);
+    token2 = new Token(posxToken2,posyToken2,'blue',ctx,30,canvas,mouse);
 
-    player1 = new Player(token1,"mari");
-    player2 = new Player(token2,"fran");
+    player1 = new Player(token1,"Rojo");
+    player2 = new Player(token2,"Azul");
 
     jueguito = new Game (player1,player2,board,mouse);
 
@@ -36,25 +42,25 @@ document.addEventListener("DOMContentLoaded",()=>{
     token2.draw();
     board.initBoard();
     board.drawBoard();  
+
+    jueguito.endGame();
     
     function animate(){
         if (isMoving) {
             turn = jueguito.getPlayerTurn();
             requestAnimationFrame(animate);
-            ctx.clearRect(0,0,canvas.width,canvas.height);                     
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            ctx.font = '25px serif';
+            ctx.fillText ("Turno del jugador " + turn.getName(),mouse.x+ token1.getRadius(),mouse.y);                                         
             jueguito.updateGame(mouse.x,mouse.y);
+            
         }
+         else {            
+            jueguito.resetToken(turn.getToken().getInitPosX(),turn.getToken().getInitPosY(),turn.getToken());
+        } 
     }
     console.log(board.getBoardMap());
-    console.log(board.getColumn(0));
-
-    function getDistance(x1,x2,y1,y2){
-        let xD = x2 - x1;
-        let yD = y2 - y1;
-
-        return Math.sqrt(Math.pow(xD,2) + Math.pow(yD,2));
-    }
-    
+    console.log(board.getColumn(0));    
 
     //canvasDrw.addEventListener("mousedown",startPosition);
     //canvasDrw.addEventListener("mousemove",draw);
@@ -67,8 +73,8 @@ document.addEventListener("DOMContentLoaded",()=>{
     function playerMove(){
         turn = jueguito.getPlayerTurn();
         isMoving = true;
-        if(mouse.x -  turn.getToken().getPosX() < 30 && mouse.x - turn.getToken().getPosX() > - 30
-        && mouse.y - turn.getToken().getPosY() < 30 && mouse.y - turn.getToken().getPosY() > - 30){
+        if(mouse.x -  turn.getToken().getPosX() < 50 && mouse.x - turn.getToken().getPosX() > - 50
+        && mouse.y - turn.getToken().getPosY() < 50 && mouse.y - turn.getToken().getPosY() > - 50){
 
            animate();
        }
@@ -76,25 +82,13 @@ document.addEventListener("DOMContentLoaded",()=>{
 
      canvas.addEventListener('mouseup',function(){
         isMoving = false;
-        jueguito.setPlayerTurn();     
-    }) 
+        let checkDrop = board.tokenDrop(board.checkFilledColumn(),turn.getToken());
+        if(checkDrop) {
+            if(jueguito.endGame()) {
+                window.alert("Terminó el juego ganó el jugador : " + turn.getName());
+            }
+            jueguito.setPlayerTurn();
 
-    /*(mouse.x - this.x < 50 && mouse.x - this.x > -50
-        && mouse.y - this.y < 50 && mouse.y - this.y > -50)*/
-    //board.addEventClick();
-
-    /* let canvasP1 = document.querySelector("#p1-token");
-    let ctxP1 = canvasP1.getContext("2d");
-
-    let canvasP2 = document.querySelector("#p2-token");
-    let ctxP2 = canvasP2.getContext("2d");
-    
-    let tokenP1 = new Token(150,75,"red",ctxP1,40);
-    let tokenP2 = new Token(150,75,"blue",ctxP2,40); */
-
-    
-    
-       
-    /* tokenP1.draw();
-    tokenP2.draw();  */  
+        }
+    })     
 });

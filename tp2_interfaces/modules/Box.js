@@ -10,6 +10,8 @@ class Box extends Figure{
          this.width = width;
          this.height = height;
          this.isFilled = false;
+         this.token = null;
+         this.isHover = false;
          //this.fill = fill;
          //this.context = context;
      }
@@ -19,6 +21,10 @@ class Box extends Figure{
      }
      getWidth(){
          return this.width;
+     }
+
+     getToken() {
+         return this.token;
      }
 
      getHeight(){
@@ -31,24 +37,45 @@ class Box extends Figure{
          return this.posY;
      }
 
-    filled(){
+     hovered(){
+         this.isHover = true;
+     }
+     clearHovered(){
+         this.isHover = false;
+     }
+
+    filled(token){
         this.isFilled = true;
+        this.token = token;
     }
     clearFilled(){
         this.isFilled = false;
     }
+    getIsFilled(){
+        return this.isFilled;
+    }
+    getIsHovered(){
+        return this.isHover;
+    }
 
 
 
-     draw(){
+     draw(movedToken){
         super.draw();
         this.context.beginPath();       
         this.context.lineWidth = 2;
-        this.context.fillStyle = 'red';
+        //this.context.fillStyle = 'red';
         this.context.strokeStyle = this.fill;        
         this.context.strokeRect(this.posX,this.posY,this.width,this.height); 
+        if (this.isHover) {
+            let token = new Token(this.posX+this.width/2,this.posY+this.height/2,
+                movedToken.getFill(),this.context,30,movedToken.getCanvas());
+            token.draw();
+        }
         if(this.isFilled){       
-            this.context.fillRect(this.posX,this.posY,this.width,this.height);  
+            let token = new Token(this.posX+this.width/2,this.posY+this.height/2,
+                this.token.getFill(),this.context,30,this.token.getCanvas())
+            token.draw();
         }  
         this.context.closePath();
      }
