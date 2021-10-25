@@ -4,16 +4,47 @@ class Game {
         this.player2 = player2;
         this.tokens = [];
         this.board = board;
-        this.turn = player1;
+        this.turn = undefined;
         this.mouse = mouse;  
         this.CONNECT = 4;      
     }
 
-    game () {
+    initGame (token1,token2,board) {
+        token1.draw();
+        token2.draw();
+        board.initBoard();
+        board.drawBoard();
+        let starter = Math.floor(Math.random() * (2 - 1 + 1)) + 1;        
+        if(starter == 1){
+            this.turn = this.player1;
+        }else{
+            this.turn = this.player2;
+        }
+        this.startTimer();
         //math random quien empieza con player
         //turno quien empieza true, el otro false
         //
     }   
+
+    startTimer(){
+        let countdownTime = new Date().getTime() + 600000;
+        console.log(countdownTime)
+        let x = setInterval(function (){         
+            let timeNow = new Date().getTime();
+            console.log(timeNow)
+            let distance = countdownTime - timeNow;
+            console.log(distance);
+            let mins = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            let secs = Math.floor((distance % (1000 * 60)) / 1000);
+            document.getElementById("timer").innerHTML = mins + "m " + secs + "s ";
+
+            // If the count down is finished, write some text
+            if (distance < 0) {
+                clearInterval(x);
+                document.getElementById("timer").innerHTML = "EXPIRED";
+            }          
+        }, 1000);    
+    }
 
     getPlayerTurn (){
         return this.turn;

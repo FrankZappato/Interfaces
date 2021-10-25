@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./tp2_interfaces/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css">
     <script src="./tp2_interfaces/app.js"></script>
     <script src="./tp2_interfaces/modules/Game.js"></script>
     <script src="./tp2_interfaces/modules/Player.js"></script>
@@ -12,28 +13,18 @@
     <script src="./tp2_interfaces/modules/Figure.js"></script>
     <script src="./tp2_interfaces/modules/Box.js"></script>
     <script src="./tp2_interfaces/modules/Token.js"></script>
+    <script src="https://kit.fontawesome.com/9bf18a9bfb.js" crossorigin="anonymous"></script>
     <title>Document</title>
 </head>
 <body>
-    <canvas class="board" id="default-board"></canvas> 
-    <!--<div class="header">
-        <div>
-            <h1>Connect Four</h1>
-        </div>
-    </div>
-    <div class="game-container">
-        <div>
-            <canvas id="p1-token"></canvas>
-            <h4>Player 1</h4>
-        </div>
-        <div class="board-container">
-            <h3> Time: </h3>
-                       
-        </div>
-        <div>
-            <canvas id="p2-token"></canvas>
-            <h4>Player 2</h4>
-        </div>
-    </div>-->
+    <header>            
+        <nav class="d-flex flex-row align-items-center justify-content-around nav bg-primary text-white">
+            <h2 class="card-title">Cuatro en linea</h2>
+            <span id="player-turn" class="ml-5"></span>
+            <span id="timer"></span>
+            <button class="btn btn-secondary" id="btn-start">Start</button>
+        </nav>
+    </header>
+    <canvas class="board" id="default-board"></canvas>     
 </body>
 </html>
