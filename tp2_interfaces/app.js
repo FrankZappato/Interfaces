@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     let ctx = canvas.getContext("2d");
-    let board = new Board(6,7,canvas);
+    let board = new Board(5,6,canvas);
     
     canvas.addEventListener('mousemove',function(event){
         mouse.x = event.clientX;
@@ -95,10 +95,13 @@ document.addEventListener("DOMContentLoaded",()=>{
      canvas.addEventListener('mouseup',function(){
         isMoving = false;
         let checkDrop = board.tokenDrop(board.checkFilledColumn(),turn.getToken());
-        if(checkDrop) {
+        if(checkDrop) {            
             if(jueguito.endGame()) {
                 window.alert("Terminó el juego ganó el jugador : " + turn.getName());
-            }
+            }  
+            if(jueguito.isTie()){
+                window.alert("Termino el juego hubo un Empate!");
+            }          
             jueguito.setPlayerTurn();
             animate();
             updatePlayerTurn();

@@ -56,6 +56,10 @@ class Board {
         return finish;
     }
 
+    getBox(x,y){
+        return this.boardMap[x][y];
+    }
+
     getColumn(col){        
         let column = [];
         for(var i=0; i<this.boardMap.length; i++){

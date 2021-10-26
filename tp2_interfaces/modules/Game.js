@@ -8,7 +8,8 @@ class Game {
         this.mouse = mouse;  
         this.CONNECT = 4;
         this.timer = new Date().getTime() + 600000;
-        this.clear = false;      
+        this.clear = false;
+        this.interval = undefined;      
     }
 
     initGame (token1,token2,board) {
@@ -37,20 +38,26 @@ class Game {
     }
 
     resetTimer(){
-        this.timer = new Date().getTime() + 600000;
+        this.timer = new Date().getTime() + 600000 - new Date().getTime();
+        let mins = Math.floor((this.timer % (1000 * 60 * 60)) / (1000 * 60));
+        let secs = Math.floor((this.timer % (1000 * 60)) / 1000);
+        document.getElementById("timer").innerHTML = mins + "m " + secs + "s ";
+        clearInterval(this.interval); 
+        this.timer = new Date().getTime() + 600000;       
     }
 
     resetGame(token1,token2,board){
         this.setClear(true); 
-        this.startTimer();
+        this.resetTimer();
         this.initGame(token1,token2,board);  
     }
 
     startTimer(){
         let countdownTime = this.timer;
              
-        let x = setInterval(function (){         
-            let timeNow = new Date().getTime();
+        this.interval = setInterval(function (){   
+
+            let timeNow = new Date().getTime();            
             
             let distance = countdownTime - timeNow;
             
@@ -60,16 +67,13 @@ class Game {
 
             // If the count down is finished, write some text
             if (distance < 0) {
-                clearInterval(x);
+                clearInterval(this.interval);
                 document.getElementById("timer").innerHTML = "EXPIRED";
                 window.alert("Se acabó el tiempo GAME-OVER");
-            }          
-        }, 1000); 
-        if(this.getClear()){
-            console.log(this.clear)                         
-            clearInterval(x);            
-            this.setClear(false);
-        }
+            }     
+  
+        }, 1000);
+        
     }
 
     getPlayerTurn (){
@@ -226,5 +230,17 @@ class Game {
             y++;
         }
         return counter;
+    }
+
+    isTie() {
+        for (let y = 0; y < this.board.getCantX(); y++) {
+            for (let x = 0; x < this.board.getCantY(); x++) {
+                const currentCell = this.board.getBox(x,y);                               
+                if (currentCell.getIsFilled() === false) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }
