@@ -41,11 +41,20 @@ document.addEventListener("DOMContentLoaded",()=>{
     let btnStart = document.querySelector("#btn-start");
     btnStart.addEventListener("click",startGame);
 
+    let btnRestart = document.querySelector("#btn-restart");
+    btnRestart.addEventListener("click",restartGame)
+
+
     function startGame(event){
         event.preventDefault();
         jueguito.initGame(token1,token2,board);
         updatePlayerTurn();
     }   
+
+    function restartGame(event){
+        event.preventDefault();
+        jueguito.resetGame(token1,token2,board);
+    }
     
     function animate(){
         if (isMoving) {
@@ -66,6 +75,9 @@ document.addEventListener("DOMContentLoaded",()=>{
 
 
     let playerTurn = document.querySelector("#player-turn");
+    /**
+     * Muestra el turno de cada jugador al realizar una jugada correcta lo cambia.
+     */
     function updatePlayerTurn(){
         playerTurn.innerHTML = "Es el turno del jugador: " + jueguito.getPlayerTurn().getName();
     }
@@ -88,6 +100,7 @@ document.addEventListener("DOMContentLoaded",()=>{
                 window.alert("Terminó el juego ganó el jugador : " + turn.getName());
             }
             jueguito.setPlayerTurn();
+            animate();
             updatePlayerTurn();
         }
     })     

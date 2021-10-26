@@ -6,7 +6,9 @@ class Game {
         this.board = board;
         this.turn = undefined;
         this.mouse = mouse;  
-        this.CONNECT = 4;      
+        this.CONNECT = 4;
+        this.timer = new Date().getTime() + 600000;
+        this.clear = false;      
     }
 
     initGame (token1,token2,board) {
@@ -14,6 +16,7 @@ class Game {
         token2.draw();
         board.initBoard();
         board.drawBoard();
+        //Random turno para empezar!
         let starter = Math.floor(Math.random() * (2 - 1 + 1)) + 1;        
         if(starter == 1){
             this.turn = this.player1;
@@ -25,15 +28,32 @@ class Game {
         //turno quien empieza true, el otro false
         //
     }   
+    getClear(){
+        return this.clear;
+    }
+
+    setClear(bool){
+        this.clear = bool;
+    }
+
+    resetTimer(){
+        this.timer = new Date().getTime() + 600000;
+    }
+
+    resetGame(token1,token2,board){
+        this.setClear(true); 
+        this.startTimer();
+        this.initGame(token1,token2,board);  
+    }
 
     startTimer(){
-        let countdownTime = new Date().getTime() + 600000;
-        console.log(countdownTime)
+        let countdownTime = this.timer;
+             
         let x = setInterval(function (){         
             let timeNow = new Date().getTime();
-            console.log(timeNow)
+            
             let distance = countdownTime - timeNow;
-            console.log(distance);
+            
             let mins = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             let secs = Math.floor((distance % (1000 * 60)) / 1000);
             document.getElementById("timer").innerHTML = mins + "m " + secs + "s ";
@@ -42,8 +62,14 @@ class Game {
             if (distance < 0) {
                 clearInterval(x);
                 document.getElementById("timer").innerHTML = "EXPIRED";
+                window.alert("Se acabó el tiempo GAME-OVER");
             }          
-        }, 1000);    
+        }, 1000); 
+        if(this.getClear()){
+            console.log(this.clear)                         
+            clearInterval(x);            
+            this.setClear(false);
+        }
     }
 
     getPlayerTurn (){
